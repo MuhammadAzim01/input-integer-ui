@@ -1,54 +1,54 @@
-module.exports = inputInteger
+module.exports = input_integer
 
 const sheet = new CSSStyleSheet()
 const theme = get_theme()
 sheet.replaceSync(theme)
 
-var id = 0
+let id = 0
 
-function inputInteger (opts, protocol) {
-	const name = `input-integer-${id++}`
+function input_integer (opts, protocol) {
+  const name = `input-integer-${id++}`
 
-	const {min=1, max=5} = opts
-	const el = document.createElement('div')
-	const shadow = el.attachShadow({ mode: 'closed' })
+  const { min = 1, max = 5 } = opts
+  const el = document.createElement('div')
+  const shadow = el.attachShadow({ mode: 'closed' })
 
-	const input = document.createElement('input')
-	input.type = 'number'
-	input.min = min
-	input.max = max
+  const input = document.createElement('input')
+  input.type = 'number'
+  input.min = min
+  input.max = max
+  if (protocol) {
+	notify = protocol({ from: name }, listen)
+  }
+  function listen (message) {
+    const { type, body } = message
+    if (type == 'update') input.value = body
+  }
 
-	notify = protocol({ from:name }, listen)
-    function listen (message) {
-        const { type, body } = message
-        if (type == 'update') input.value = body
-    }
+  input.onkeyup = (e) => handle_onkeyup(e, input, min, max)
+  input.onblur = (e) => handle_on_mouseleave_and_blur(e, input, min)
+  input.onmouseleave = (e) => handle_on_mouseleave_and_blur(e, input, min)
 
-	input.onkeyup = (e) => handle_onkeyup(e, input, min, max)
-	input.onblur = (e) => handle_on_mouseleave_and_blur(e, input, min)
-	input.onmouseleave = (e) => handle_on_mouseleave_and_blur(e, input, min)
+  shadow.append(input)
+  shadow.adoptedStyleSheets = [sheet]
+  return el
 
-	shadow.append(input)
-	shadow.adoptedStyleSheets = [sheet]
-	return el
+  // handlers
 
-	//handlers
+  function handle_onkeyup (e, input, min, max) {
+    const val = Number(e.target.value)
+    const min_len = min.toString().length
+    const val_len = val.toString().length
+    if (val > max) input.value = max
+    else if (min_len === val_len && val < min) input.value = min
 
-	function handle_onkeyup (e, input, min, max) {
-		const val = Number(e.target.value)
-		const min_len = min.toString().length
-		const val_len = val.toString().length
-		if (val > max) input.value = max
-		else if (min_len === val_len && val < min) input.value = min
+    notify({ from: name, type: 'update', body: val })
+  }
 
-		notify({ from:name, type:'update', body:val })
-	}
-
-	function handle_on_mouseleave_and_blur(e, input, min) {
-		const val = Number(e.target.value)
-		if (val < min) input.value = ''
-	}
-
+  function handle_on_mouseleave_and_blur (e, input, min) {
+    const val = Number(e.target.value)
+    if (val < min) input.value = ''
+  }
 }
 
 function get_theme () {

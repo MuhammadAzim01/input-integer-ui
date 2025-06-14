@@ -1,7 +1,7 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-const inputInteger = require('input-integer-ui-mazim')
+const input_integer = require('..')
 
-const input1 = inputInteger({min:13, max:50})
+const input1 = input_integer({ min: 13, max: 50 })
 
 title = 'demo form'
 subTitle = 'Please fill out the details:'
@@ -18,30 +18,59 @@ page.innerHTML = `
 page.querySelector('x').replaceWith(input1)
 
 document.body.append(page)
-},{"input-integer-ui-mazim":2}],2:[function(require,module,exports){
-module.exports = inputInteger
+
+},{"..":2}],2:[function(require,module,exports){
+module.exports = input_integer
 
 const sheet = new CSSStyleSheet()
 const theme = get_theme()
 sheet.replaceSync(theme)
 
-function inputInteger (opts) {
-	const {min=1, max=5} = opts
-	const el = document.createElement('div')
-	const shadow = el.attachShadow({ mode: 'closed' })
+let id = 0
 
-	const input = document.createElement('input')
-	input.type = 'number'
-	input.min = min
-	input.max = max
+function input_integer (opts, protocol) {
+  const name = `input-integer-${id++}`
 
-	input.onkeyup = (e) => handle_onkeyup(e, input, min, max)
-	input.onblur = (e) => handle_on_mouseleave_and_blur(e, input, min)
-	input.onmouseleave = (e) => handle_on_mouseleave_and_blur(e, input, min)
+  const { min = 1, max = 5 } = opts
+  const el = document.createElement('div')
+  const shadow = el.attachShadow({ mode: 'closed' })
 
-	shadow.append(input)
-	shadow.adoptedStyleSheets = [sheet]
-	return el
+  const input = document.createElement('input')
+  input.type = 'number'
+  input.min = min
+  input.max = max
+  if (protocol) {
+	notify = protocol({ from: name }, listen)
+  }
+  function listen (message) {
+    const { type, body } = message
+    if (type == 'update') input.value = body
+  }
+
+  input.onkeyup = (e) => handle_onkeyup(e, input, min, max)
+  input.onblur = (e) => handle_on_mouseleave_and_blur(e, input, min)
+  input.onmouseleave = (e) => handle_on_mouseleave_and_blur(e, input, min)
+
+  shadow.append(input)
+  shadow.adoptedStyleSheets = [sheet]
+  return el
+
+  // handlers
+
+  function handle_onkeyup (e, input, min, max) {
+    const val = Number(e.target.value)
+    const min_len = min.toString().length
+    const val_len = val.toString().length
+    if (val > max) input.value = max
+    else if (min_len === val_len && val < min) input.value = min
+
+    notify({ from: name, type: 'update', body: val })
+  }
+
+  function handle_on_mouseleave_and_blur (e, input, min) {
+    const val = Number(e.target.value)
+    if (val < min) input.value = ''
+  }
 }
 
 function get_theme () {
@@ -86,19 +115,6 @@ function get_theme () {
 	  -webkit-appearance: none;
 	}
   `
-}
-
-function handle_onkeyup (e, input, min, max) {
-	const val = Number(e.target.value)
-	const min_len = min.toString().length
-	const val_len = val.toString().length
-	if (val > max) input.value = max
-	else if (min_len === val_len && val < min) input.value = min
-}
-
-function handle_on_mouseleave_and_blur(e, input, min) {
-	const val = Number(e.target.value)
-	if (val < min) input.value = ''
 }
 
 },{}]},{},[1]);
