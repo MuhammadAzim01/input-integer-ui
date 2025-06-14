@@ -1,4 +1,4 @@
-const inputInteger = require('..')
+const inputInteger = require('input-integer-ui-mazim')
 
 const input1 = inputInteger({min:13, max:50})
 
