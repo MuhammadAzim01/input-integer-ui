@@ -1,0 +1,30 @@
+{
+  "name": "input-integer-ui",
+  "version": "0.0.0",
+  "description": "ui component",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "budo demo/demo.js:bundle.js --live --open",
+    "build": "browserify demo/demo.js > bundle.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MuhammadAzim01/input-integer-ui.git"
+  },
+  "keywords": [
+    "input",
+    "integer",
+    "field"
+  ],
+  "author": "mazim",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MuhammadAzim01/input-integer-ui/issues"
+  },
+  "homepage": "https://github.com/MuhammadAzim01/input-integer-ui#readme",
+  "devDependencies": {
+    "browserify": "^17.0.1",
+    "budo": "^11.8.4"
+  }
+}
