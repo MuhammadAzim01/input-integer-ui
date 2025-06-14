@@ -4,7 +4,11 @@ const sheet = new CSSStyleSheet()
 const theme = get_theme()
 sheet.replaceSync(theme)
 
-function inputInteger (opts) {
+var id = 0
+
+function inputInteger (opts, protocol) {
+	const name = `input-integer-${id++}`
+
 	const {min=1, max=5} = opts
 	const el = document.createElement('div')
 	const shadow = el.attachShadow({ mode: 'closed' })
@@ -14,6 +18,12 @@ function inputInteger (opts) {
 	input.min = min
 	input.max = max
 
+	notify = protocol({ from:name }, listen)
+    function listen (message) {
+        const { type, body } = message
+        if (type == 'update') input.value = body
+    }
+
 	input.onkeyup = (e) => handle_onkeyup(e, input, min, max)
 	input.onblur = (e) => handle_on_mouseleave_and_blur(e, input, min)
 	input.onmouseleave = (e) => handle_on_mouseleave_and_blur(e, input, min)
@@ -21,6 +31,24 @@ function inputInteger (opts) {
 	shadow.append(input)
 	shadow.adoptedStyleSheets = [sheet]
 	return el
+
+	//handlers
+
+	function handle_onkeyup (e, input, min, max) {
+		const val = Number(e.target.value)
+		const min_len = min.toString().length
+		const val_len = val.toString().length
+		if (val > max) input.value = max
+		else if (min_len === val_len && val < min) input.value = min
+
+		notify({ from:name, type:'update', body:val })
+	}
+
+	function handle_on_mouseleave_and_blur(e, input, min) {
+		const val = Number(e.target.value)
+		if (val < min) input.value = ''
+	}
+
 }
 
 function get_theme () {
@@ -65,17 +93,4 @@ function get_theme () {
 	  -webkit-appearance: none;
 	}
   `
-}
-
-function handle_onkeyup (e, input, min, max) {
-	const val = Number(e.target.value)
-	const min_len = min.toString().length
-	const val_len = val.toString().length
-	if (val > max) input.value = max
-	else if (min_len === val_len && val < min) input.value = min
-}
-
-function handle_on_mouseleave_and_blur(e, input, min) {
-	const val = Number(e.target.value)
-	if (val < min) input.value = ''
 }
