@@ -1,6 +1,6 @@
 const inputInteger = require('..')
 
-const input1 = inputInteger()
+const input1 = inputInteger({min:13, max:50})
 
 title = 'demo form'
 subTitle = 'Please fill out the details:'
